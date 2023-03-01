@@ -31,9 +31,13 @@ local function removeGloveTransparency()
 	local Backpack = LocalPlayer.Backpack
 	Character:WaitForChild("Humanoid"):UnequipTools()
 	Character:WaitForChild("Humanoid"):EquipTool(Backpack:WaitForChild("Extreme Glove"))
-	game.ReplicatedStorage.HDAdminClient.Signals.RequestCommand:InvokeServer("/invisible")
-	Character:WaitForChild("Humanoid"):UnequipTools()
-	game.ReplicatedStorage.HDAdminClient.Signals.RequestCommand:InvokeServer("/visible")
+	task.delay(0.15, function()
+		game.ReplicatedStorage.HDAdminClient.Signals.RequestCommand:InvokeServer("/invisible")
+		Character:WaitForChild("Humanoid"):UnequipTools()
+		task.delay(0.15, function()
+			game.ReplicatedStorage.HDAdminClient.Signals.RequestCommand:InvokeServer("/visible")
+		end)
+	end)
 end
 
 local function removeGloveAnimations()
