@@ -11,6 +11,10 @@ Animation.AnimationId = AnimID
 
 local Track = Character:WaitForChild("Humanoid"):LoadAnimation(Animation)
 
+local AddedConnection
+local BeganConnection
+local EndedConnection
+
 local function Punch()
 	Track:Play()
 	Track.TimePosition = 1.95
@@ -44,16 +48,31 @@ local function removeGloveAnimations()
 end
 
 local Holding = false
-UIS.InputBegan:Connect(function(Input, GPE)
+BeganConnection = UIS.InputBegan:Connect(function(Input, GPE)
 	if not GPE then
 		if Input.KeyCode == Enum.KeyCode.F then	
 			Holding = true
 			Punch() -- Do hold punch animation		
+		elseif Input.KeyCode == Enum.KeyCode.B then
+			if BeganConnection then BeganConnection:Disconnect() BeganConnection = nil end
+			if EndedConnection then EndedConnection:Disconnect() EndedConnection = nil end
+			if AddedConnection then AddedConnection:Disconnect() AddedConnection = nil end
+			if Holding then
+				Character:WaitForChild("Humanoid"):EquipTool(Glove)
+				local Remote = Glove:WaitForChild("Remote")
+				Remote:FireServer("LeftDown")
+				task.delay(0.5, function()
+					if Character:FindFirstChild("Extreme Glove") then
+						Character.Humanoid:UnequipTools()
+					end
+				end)
+				Punch2() -- Do punch animation	
+			end
 		end	
 	end
 end)
 
-UIS.InputEnded:Connect(function(Input, GPE)
+EndedConnection = UIS.InputEnded:Connect(function(Input, GPE)
 	if Input.KeyCode == Enum.KeyCode.F and Holding then	
 		Holding = false
 		Character:WaitForChild("Humanoid"):EquipTool(Glove)
@@ -83,7 +102,7 @@ local function Do()
 	end)
 end
 Do()
-game.Players.LocalPlayer.CharacterAdded:Connect(function(NewCharacter)
+AddedConnection = game.Players.LocalPlayer.CharacterAdded:Connect(function(NewCharacter)
 	Do()
 	Character = NewCharacter
 	Track = Character:WaitForChild("Humanoid"):LoadAnimation(Animation)
